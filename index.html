@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meshtastic Coverage Estimator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        #map {
+            height: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 200px;
+        }
+
+        input[type="text"], button {
+            display: block;
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="controls">
+        <h3>Meshtastic Coverage Estimator</h3>
+        <p>ITM / Longely-Rice model for estimating the range of your meshtastic radio.</p>
+        <p>Click on the map to select a location, then click run model.</p>
+
+        <label for="height">height (m):</label>
+        <input type="text" id="height" value="1.0">
+
+        <label for="gain">antenna gain (dB):</label>
+        <input type="text" id="gain" value="2.0">
+
+        <label for="lat">latitude (deg):</label>
+        <input type="text" id="lat" value="51.000000">
+
+        <label for="lng">longitude (deg):</label>
+        <input type="text" id="lng" value="-114.000000">
+
+        <label for="region">region:</label>
+        <select id="region">
+            <option value="US">US</option>
+            <option value="EU_868">EU_868</option>
+        </select>
+        <p></p>
+
+        <button onclick="predict()">Run Model</button>
+    </div>
+
+    <!-- Load Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <!-- Load Plotty (Skypack CDN) -->
+<script src="
+https://cdn.jsdelivr.net/npm/plotty@0.4.9/dist/plotty.min.js
+"></script>
+
+    <!-- Load GeoTIFF.js -->
+    <script src="https://unpkg.com/geotiff@1.0.0-beta.5/dist/geotiff.bundle.min.js"></script>
+
+    <!-- Load Leaflet GeoTIFF and the Plotty renderer -->
+    <script src="https://unpkg.com/leaflet-geotiff"></script>
+    <script src="https://unpkg.com/leaflet-geotiff/leaflet-geotiff-plotty.js"></script>
+
+    <script>
+        var map = L.map('map').setView([51, -114], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        map.on('click', function(e) {
+            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+        });
+
+        async function predict() {
+            var lat = parseFloat(document.getElementById('lat').value);
+            var lon = parseFloat(document.getElementById('lng').value);
+            var txh = parseFloat(document.getElementById("height").value);
+            var gain = parseFloat(document.getElementById("gain").value);
+            var region = document.getElementById("region").value;
+
+            var postData = {
+                "lat": lat,
+                "lon": lon,
+                "txh": txh,
+                "rxh": 1.0,
+                "tx_gain": gain,
+                "rx_gain": 1.0,
+                "region": region,
+                "grid_resolution": 1000
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8086/predict', {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': 'large4catsmeshtastic',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('HTTP error! Status: ${response.status}');
+                }
+
+                const arrayBuffer = await response.arrayBuffer();
+                processGeoTIFF(arrayBuffer);
+                alert('Model prediction finished.');
+            } catch (error) {
+                console.error('Error during prediction:', error);
+            }
+        }
+
+        async function processGeoTIFF(arrayBuffer) {
+            try {
+                const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+                const image = await tiff.getImage();
+                const rasters = await image.readRasters();
+
+                const width = image.getWidth();
+const height = image.getHeight();
+const samplesPerPixel = image.getSamplesPerPixel();
+console.log(`Width: ${width}, Height: ${height}, Samples per pixel: ${samplesPerPixel}`);
+
+
+                console.log(image);
+
+                var geoTiffLayer = L.leafletGeotiff({
+                    source: rasters[0],
+                    renderer: new L.LeafletGeotiff.Plotty({
+                        displayMin: -140,
+                        displayMax: -80,
+                        colorScale: 'plasma'
+                    })
+                });
+
+                geoTiffLayer.addTo(map);
+            } catch (error) {
+                console.error("Error processing GeoTIFF", error);
+            }
+        }
+    </script>
+</body>
+</html>
