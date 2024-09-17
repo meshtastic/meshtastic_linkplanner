@@ -1,16 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
-from fastapi.responses import StreamingResponse
-from rasterio.io import MemoryFile
-from io import BytesIO
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from geoprop import Tiles, Itm, Point, Climate
 from dotenv import dotenv_values
 from regions import meshtastic_regions
-from scipy.interpolate import griddata
-from rasterio.transform import from_origin
-import numpy as np
 import logging
+import geojson
 import h3
 import sys
 
@@ -63,8 +59,8 @@ class PredictRequest(BaseModel):
     tx_gain: float = Field(1.0, ge=0, description="Transmission gain in dB")
     rx_gain: float = Field(1.0, ge=0, description="Reception gain in dB")
     region: str = Field("US", description="Region code")
-    grid_resolution: int = Field(
-        1000, ge=128, le=10000, description="geo tiff resolution in pixels"
+    resolution: int = Field(
+        8, ge=7, le=12, description="Simulation resolution in h3"
     )
 
 
@@ -74,7 +70,7 @@ async def verify_api_key(x_api_key: str = Header(...)):
 
 
 @app.post("/predict", dependencies=[Depends(verify_api_key)])
-async def predict(payload: PredictRequest) -> StreamingResponse:
+async def predict(payload: PredictRequest) -> JSONResponse:
     if payload.region not in meshtastic_regions.keys():
         raise HTTPException(
             status_code=404, detail=f"Region '{payload.region}' not found"
@@ -98,81 +94,20 @@ async def predict(payload: PredictRequest) -> StreamingResponse:
 
     # Convert H3 data to lat/lon and RSSI
     tx_power = meshtastic_regions[payload.region]["transmit_power"]
-    grid_resolution = payload.grid_resolution  # Change this value as needed
 
-    prediction_geo = []
-    for sample in prediction_h3:
-        sample_h3, sample_elevation, sample_loss_db = sample
-        sample_lat, sample_lon = h3.h3_to_geo(hex(sample_h3))
-        sample_rssi = tx_power + payload.tx_gain + payload.rx_gain - sample_loss_db
-        prediction_geo.append((sample_lat, sample_lon, sample_rssi))
+    features = []
+    for row in prediction_h3:
+        hex_boundary = h3.h3_to_geo_boundary(hex(row[0]), geo_json=True)
 
-    prediction_geo = np.array(prediction_geo)
-    values = prediction_geo[:, 2]
+        loss_db = row[2]
+        model_rssi = tx_power + payload.tx_gain + payload.rx_gain- loss_db # simple approximation, ignoring other losses
 
-    # Create grid and perform interpolation
-    try:
-        grid_x, grid_y = np.mgrid[
-            np.min(prediction_geo[:, 0]) : np.max(prediction_geo[:, 0]) : complex(
-                0, grid_resolution
-            ),
-            np.min(prediction_geo[:, 1]) : np.max(prediction_geo[:, 1]) : complex(
-                0, grid_resolution
-            ),
-        ]
-        grid_values = griddata(
-            prediction_geo[:, :2], values, (grid_x, grid_y), method="cubic"
-        )
-    except Exception as e:
-        logging.error(f"Image interpolation error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error during interpolation.")
+        features.append(geojson.Feature(
+            geometry=geojson.Polygon([hex_boundary]),
+            properties={"model_rssi": model_rssi}
+        ))
 
-    # Calculate transform for GeoTIFF
-    min_x, max_x = np.min(prediction_geo[:, 0]), np.max(prediction_geo[:, 0])
-    min_y, max_y = np.min(prediction_geo[:, 1]), np.max(prediction_geo[:, 1])
-    pixel_size_x = (max_x - min_x) / grid_resolution
-    pixel_size_y = (max_y - min_y) / grid_resolution
-    transform = from_origin(min_x, max_y, pixel_size_x, pixel_size_y)
+    feature_collection = geojson.FeatureCollection(features)
+    print(feature_collection)
 
-    if np.isnan(grid_values).any():
-        logging.warning("NaN values found in grid_values. Replacing them with 0.")
-        grid_values = np.nan_to_num(grid_values, nan=0)
-    # Normalize the grid_values to a 0-255 scale for uint8
-    grid_values = np.interp(grid_values, (np.min(grid_values), np.max(grid_values)), (0, 255))
-
-    with open("grid.txt","w") as f:
-        for value in grid_values:
-            f.write(str(value))
-        f.close()
-
-    # Use BytesIO to create an in-memory file for GeoTIFF
-    file_bytes = BytesIO()
-    try:
-        with MemoryFile() as memfile:
-            with memfile.open(
-                driver="GTiff",
-                height=grid_values.shape[0],
-                width=grid_values.shape[1],
-                count=1,
-                dtype=grid_values.dtype,
-                crs="EPSG:4326",
-                transform=transform,
-            ) as dataset:
-                dataset.write(grid_values, 1)
-
-            # Write the GeoTIFF data to BytesIO
-            file_bytes.write(memfile.read())
-
-        # Reset buffer to the beginning before returning it
-        file_bytes.seek(0)
-
-        return StreamingResponse(
-            file_bytes,
-            media_type="image/tiff",
-            headers={
-                "Content-Disposition": 'attachment; filename="predicted_field.tif"'
-            },
-        )
-    except Exception as e:
-        logging.error(f"GeoTIFF generation error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error generating GeoTIFF.")
+    return JSONResponse(content=feature_collection)
