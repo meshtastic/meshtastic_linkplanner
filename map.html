@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RSSI Map with Color Scale</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+    #map { height: 100vh; }
+
+    /* White box background around the color bar and labels */
+    .color-bar-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: white;
+      border: 1px solid #000;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    /* Style for the color bar */
+    .color-bar {
+      width: 30px;
+      height: 300px;
+      background: linear-gradient(to bottom, #ff0000, #ff6600, #ffff00, #66ff66, #00ffff, #0000ff);
+      border: 1px solid #000;
+    }
+
+    /* Labels for the RSSI values */
+    .color-bar-labels {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 300px;
+      font-size: 12px;
+      color: black;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- White box container for the color bar and labels -->
+<div class="color-bar-container">
+  <!-- Color bar for RSSI -->
+  <div class="color-bar"></div>
+
+  <!-- Labels for RSSI values -->
+  <div class="color-bar-labels">
+    <div>-100 dBm</div>
+    <div>-105 dBm</div>
+    <div>-110 dBm</div>
+    <div>-115 dBm</div>
+    <div>-120 dBm</div>
+    <div>-125 dBm</div>
+    <div>-130 dBm</div>
+  </div>
+</div>
+
+<script>
+  // Initialize the map
+  var map = L.map('map').setView([51, -114], 10);
+
+  // Add OpenStreetMap layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // Function to scale RSSI values to a color
+  function getColor(rssi) {
+    const minRSSI = -130;
+    const maxRSSI = -100;
+    const scaledRSSI = (rssi - minRSSI) / (maxRSSI - minRSSI);  // Scale RSSI between 0 and 1
+
+    // Use a color gradient: blue (-130) to red (-100)
+    const colors = ['#0000ff', '#00ffff', '#66ff66', '#ffff00', '#ff6600', '#ff0000'];
+    const index = Math.min(Math.floor(scaledRSSI * (colors.length - 1)), colors.length - 1);
+    return colors[index];
+  }
+
+  // Function to load GeoJSON data and display it as points with color based on RSSI
+  async function loadGeoJSON(lat, lon) {
+    try {
+      const response = await fetch('http://127.0.0.1:8086/predict', {
+        method: 'POST',
+        headers: {
+          'x-api-key': 'large4catsmeshtastic',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          lat: lat,
+          lon: lon,
+          txh: 1.0,
+          rxh: 1.0,
+          tx_gain: 1.0,
+          rx_gain: 1.0,
+          region: 'US'
+        })
+      });
+
+      const geojson = await response.json();
+      console.log(geojson);
+
+      // Add GeoJSON layer with point styles based on RSSI
+      L.geoJSON(geojson, {
+        pointToLayer: function(feature, latlng) {
+          const rssi = feature.properties.rssi;  // Extract RSSI value
+          const color = getColor(rssi);  // Get color based on RSSI
+          return L.circleMarker(latlng, {
+            radius: 8,  // Size of the point
+            fillColor: color,  // Color based on RSSI
+            color: '#000',
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+          });
+        }
+      }).addTo(map);
+
+    } catch (error) {
+      console.error("Error fetching GeoJSON: ", error);
+    }
+  }
+
+  // Event listener for user clicks on the map
+  map.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lon = e.latlng.lng;
+    console.log(`User clicked at latitude: ${lat}, longitude: ${lon}`);
+
+    // Load GeoJSON based on the clicked latitude and longitude
+    loadGeoJSON(lat, lon);
+  });
+</script>
+
+</body>
+</html>
