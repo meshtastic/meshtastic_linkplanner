@@ -108,6 +108,5 @@ async def predict(payload: PredictRequest) -> JSONResponse:
         ))
 
     feature_collection = geojson.FeatureCollection(features)
-    print(feature_collection)
 
     return JSONResponse(content=feature_collection)

@@ -89,7 +89,7 @@
     <div class="controls">
         <h3>Meshtastic Coverage Estimator</h3>
         <p>ITM / Longely-Rice model for estimating the range of your meshtastic radio.</p>
-        <p>Click on the map to select a location, then click run model. The colored tiles are where your radio signal can reach.</p>
+        <p>Click on the map to select a location, then click run model. The colored tiles are where your radio signal can be received.</p>
 
         <label for="height">Height (m):</label>
         <input type="text" id="height" value="1.0">
@@ -130,13 +130,13 @@
     <h3>About</h3>
     <p>
         This tool calculates the ITM / Longley-Rice radio propagation model for Meshtastic LoRa radios
-        (see <a href="https://www.meshtastic.org" target="_blank">www.meshtastic.org</a>). It is not affiliated
-        with the Meshtastic project.
-    </p>
+        (<a href="https://www.meshtastic.org" target="_blank">www.meshtastic.org</a>). Its purpose is to estimate the range of a Meshtastic radio, accounting for realistic physics and terrain. </p>
+
+        <p>It is not affiliated with the Meshtastic project.</p>
     <p>
         An effort has been made to choose model parameters which are realistic for these devices. However, the model
         does not account for urban buildings or higher-order effects such as reflections from water, structures, or signal degradation by precipitation.
-        The results on this page should be considered estimates and should not be used for safety-critical applications
+        The results are approximate and should not be used for safety-critical applications
         or emergency preparation.
     </p>
 
@@ -149,13 +149,14 @@
         This webpage uses the <a href="https://leafletjs.com" target="_blank">Leaflet</a> library.
     </p>
     <p>
-        Terrain data is sourced from NASA's Shuttle Radar Topography Mission
+        Terrain data is from the NASA Shuttle Radar Topography Mission
         (<a href="https://www.earthdata.nasa.gov/sensors/srtm" target="_blank">SRTM</a>).
     </p>
     <p>
-        The required experimental data was gathered using hardware and software designs from
+        The required experimental data were gathered using hardware and software designs from
         <a href="https://www.meshtastic.org" target="_blank">www.meshtastic.org</a>.
     </p>
+        <p>High-performance computation is provided by Calgary Protospace <a href="https://protospace.ca/">https://protospace.ca</a>.</p>
         <button onclick="closeAboutDialog()">Close</button>
     </dialog>
 
