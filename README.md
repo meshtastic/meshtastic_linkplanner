@@ -9,5 +9,11 @@ This is a web utility to predict the range of a Meshtastic radio (see meshtastic
 ## Building
 
 Requirements:
-* The 30 meter resolution NASA SRTM elevation dataset in `.hgt` format. The data is availabe from AWS open data: https://registry.opendata.aws/terrain-tiles/
-* Docker
+* The 3 arcsecond resolution NASA SRTM elevation dataset in `.hgt` format. The data is availabe from AWS open data: https://registry.opendata.aws/terrain-tiles/
+* docker
+* git
+
+Steps:
+1) copy the SRTM data to a folder named `3-arcsecond`.
+2) `git clone https://github.com/mrpatrick1991/meshtastic_linkplanner/ && cd meshtastic_linkplanner && docker build -t linkplanner`
+3) 
