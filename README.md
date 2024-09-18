@@ -16,11 +16,14 @@ Requirements:
 * git
 
 Steps:
-copy the `.hgt` files to a convenient folder, `srtm`.
+copy the `.hgt` files to a convenient folder, `my_srtm_data`.
 
 ```git clone https://github.com/mrpatrick1991/meshtastic_linkplanner/ && cd meshtastic_linkplanner && docker build -t linkplanner
+
 docker run --env h3_res=9 \
            --env max_distance_km=100 \
            --env tile_dir=/app/srtm_tiles \
-           -v srtm:/app/srtm_tiles \
+           -v my_srtm_data:/app/srtm_tiles \
+           --restart unless-stopped \
            -p 80:8080 linkplanner```
+
