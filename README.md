@@ -14,8 +14,6 @@ Requirements:
 * docker
 * git
 
-Steps:
-
 copy the `.hgt` files to a convenient folder, `my_srtm_data`.
 
 ```
