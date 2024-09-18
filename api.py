@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import JSONResponse, FileResponse
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from geoprop import Tiles, Itm, Point, Climate
 from dotenv import dotenv_values
@@ -9,6 +8,7 @@ import logging
 import geojson
 import h3
 import sys
+import os
 
 
 logging.basicConfig(level=logging.INFO)
@@ -18,11 +18,25 @@ app = FastAPI()
 
 def load_config() -> dict:
     try:
-        config = dotenv_values(".env")
-        tile_dir = config["SRTM_TILE_DIR"]
-        h3_res = int(config["MODEL_H3_RES"])
-        max_distance_km = float(config["MAX_DISTANCE_KM"])
-        api_key = config["API_KEY"]
+        # Get environment variables using os.getenv and provide fallback values if needed
+        tile_dir = os.getenv("SRTM_TILE_DIR")
+        if tile_dir is None:
+            raise KeyError("SRTM_TILE_DIR")
+
+        h3_res = os.getenv("MODEL_H3_RES")
+        if h3_res is None:
+            raise KeyError("MODEL_H3_RES")
+        h3_res = int(h3_res)
+
+        max_distance_km = os.getenv("MAX_DISTANCE_KM")
+        if max_distance_km is None:
+            raise KeyError("MAX_DISTANCE_KM")
+        max_distance_km = float(max_distance_km)
+
+        api_key = os.getenv("API_KEY")
+        if api_key is None:
+            raise KeyError("API_KEY")
+
         return {
             "tile_dir": tile_dir,
             "h3_res": h3_res,
@@ -30,7 +44,7 @@ def load_config() -> dict:
             "api_key": api_key,
         }
     except KeyError as e:
-        logging.error(f"{e} not found in .env file, exiting.")
+        logging.error(f"{e} not found in environment variables, exiting.")
         sys.exit(1)
     except ValueError as e:
         logging.error(f"Invalid value for {e}, exiting.")
@@ -45,13 +59,13 @@ itm = Itm(tiles, climate=Climate.ContinentalTemperate)
 class PredictRequest(BaseModel):
     lat: float = Field(..., ge=-90, le=90, description="Latitude")
     lon: float = Field(..., ge=-180, le=180, description="Longitude")
-    txh: float = Field(1.0, gt=0, description="Transmission height in meters")
-    rxh: float = Field(1.0, gt=0, description="Reception height in meters")
-    tx_gain: float = Field(1.0, ge=0, description="Transmission gain in dB")
-    rx_gain: float = Field(1.0, ge=0, description="Reception gain in dB")
+    txh: float = Field(1.0, gt=0, description="Transmitter height in meters")
+    rxh: float = Field(1.0, gt=0, description="Receiver height in meters")
+    tx_gain: float = Field(1.0, ge=0, description="Transmitter gain in dB")
+    rx_gain: float = Field(1.0, ge=0, description="Receiver gain in dB")
     region: str = Field("US", description="Region code")
     resolution: int = Field(
-        8, ge=7, le=12, description="Simulation resolution in h3"
+        8, ge=7, le=12, description="Simulation h3 cell resolution"
     )
 
 
