@@ -117,7 +117,7 @@
 
     <!-- Color bar for RSSI -->
     <div id="color-bar-container">
-        <p>Predicted RSSI (dB)</p>
+        <p>Predicted RSSI (dBm)</p>
         <div class="color-bar" id="color-bar"></div>
         <div style="display: flex; justify-content: space-between;">
             <span id="min-rssi">-140</span>
@@ -134,10 +134,9 @@
 
         <p>It is not affiliated with the Meshtastic project.</p>
     <p>
-        An effort has been made to choose model parameters which are realistic for these devices. However, the model
-        does not account for urban buildings or higher-order effects such as reflections from water, structures, or signal degradation by precipitation.
-        The results are approximate and should not be used for safety-critical applications
-        or emergency preparation.
+        An effort has been made to choose model parameters which are realistic for meshtastic devices. However, the model
+        does not account for higher-order effects such as reflections from water, structures, or signal degradation by precipitation or vegetation.
+        The results are approximate and should not be used for safety-critical applications.
     </p>
 
         <p>
@@ -160,7 +159,7 @@
         The required experimental data were gathered using hardware and software designs from
         <a href="https://www.meshtastic.org" target="_blank">www.meshtastic.org</a>.
     </p>
-        <p>High-performance computation is provided by Calgary Protospace <a href="https://protospace.ca/">https://protospace.ca</a>.</p>
+        <p>High-performance computation is provided by Calgary Protospace (<a href="https://protospace.ca/">https://protospace.ca</a>).</p>
         <p></p>
         <button onclick="closeAboutDialog()">Close</button>
     </dialog>
@@ -257,7 +256,7 @@
                         fillOpacity: 0.5
                     });
 
-                    polygon.bindTooltip(`${modelRssi.toFixed(2)} dB`, {
+                    polygon.bindTooltip(`${modelRssi.toFixed(2)} dBm`, {
                         permanent: false,
                         direction: "center"
                     });
