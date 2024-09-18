@@ -20,7 +20,7 @@ This tool makes several assumptions:
 * The sensitivity of the receiver in all cases is approximately -130 dBm.
 * The terrain model is accurate to 30 meters.
 
-These assumptions have been tested and found to be practical approximations of how meshtastic radios work. Please use discretion when applying results from this tool and verify the results if your project depends on them.
+These assumptions have been tested and found to be practical in typical usage scenarios. Please use discretion when applying results from this tool and verify the results if your project depends on them.
 
 
 ## Building
