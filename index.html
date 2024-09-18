@@ -89,7 +89,7 @@
     <div class="controls">
         <h3>Meshtastic Coverage Estimator</h3>
         <p>ITM / Longely-Rice model for estimating the range of your meshtastic radio.</p>
-        <p>Click on the map to select the location of your radio, then click run model. The colored tiles are where your signal can be received.</p>
+        <p>Click on the map to select the location of your radio, then click run model. The colored tiles are where your radio signal can be received.</p>
 
         <label for="height">Height (m):</label>
         <input type="text" id="height" value="1.0">
@@ -211,7 +211,7 @@
             };
 
             try {
-                const response = await fetch('http://127.0.0.1:8080/predict', {
+                const response = await fetch('http://127.0.0.1:80/predict', {
                     method: 'POST',
                     headers: {
                         'x-api-key': 'large4catsmeshtastic',

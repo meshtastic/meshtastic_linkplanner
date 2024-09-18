@@ -1,3 +1,5 @@
+# LoRa regions for meshtastic from https://meshtastic.org/docs/configuration/region-by-country/
+
 meshtastic_regions = {
     "EU_868": {"frequency": 868.3, "transmit_power": 14},
     "EU_433": {"frequency": 433.3, "transmit_power": 12},
