@@ -1,12 +1,12 @@
-l# Meshtastic Link Planner 
+# Meshtastic Link Planner 
 
 If you just want to use the link planner, go to the hosted version: (pending)
 
 ## About
 
-This is a web utility to predict the range of a Meshtastic radio (see meshtastic.org). It generates a map of where your meshtastic radio can be received based on your location and antenna. The prediction accounts for terrain and calculates the expected RSSI (received signal strength indication) using the ITM / Longley-Rice model. The model parameters have been carefully chosen based on experimental data and practical experience to produce results which are accurate for meshtastic devices. Radio parameters are based on the selected LoRa region. 
+This is a web utility to predict the range of a Meshtastic radio (see Meshtastic.org). It generates a map of where your Meshtastic radio can be received based on your location and antenna. The prediction accounts for terrain and calculates the expected RSSI (received signal strength indication) using the ITM / Longley-Rice model. The model parameters have been carefully chosen based on experimental data and practical experience to produce results which are accurate for Meshtastic devices. Radio parameters are based on the selected LoRa region. 
 
-This project is not affiliated with meshtastic.
+This project is not affiliated with Meshtastic.
 
 ## Assumptions
 
@@ -49,11 +49,11 @@ Note: It is recommended to leave the `max_distance` at 100 kilometers and `h3_re
 
 ## Disclaimer
 
-Follow local radio communication laws. Some meshtastic projects may require an amateur radio license. 
+Follow local radio communication laws. Some Meshtastic projects may require an amateur radio license. 
 
 ## References
 
 * geoprop-py: https://github.com/JayKickliter/geoprop-py
 * leafletjs: https://leafletjs.com
-* ITM / Longely Rice model: https://its.ntia.gov/software/itm
-* meshtastic: https://meshtastic.org
+* ITM / Longley-Rice model: https://its.ntia.gov/software/itm
+* Meshtastic: https://meshtastic.org
