@@ -25,7 +25,8 @@ docker run --env h3_res=9 \
            --env tile_dir=/app/srtm_tiles \
            -v my_srtm_data:/app/srtm_tiles \
            --restart unless-stopped \
-           -p 80:8080 linkplanner```
+           -p 80:8080 linkplanner
+```
 
 ## References
 
