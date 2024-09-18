@@ -54,6 +54,6 @@ Follow local radio communication laws. Some Meshtastic projects may require an a
 ## References
 
 * geoprop-py: https://github.com/JayKickliter/geoprop-py
-* leafletjs: https://leafletjs.com
+* LeafletJS: https://leafletjs.com
 * ITM / Longley-Rice model: https://its.ntia.gov/software/itm
 * Meshtastic: https://meshtastic.org
