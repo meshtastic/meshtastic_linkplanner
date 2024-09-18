@@ -28,7 +28,7 @@ docker run --env h3_res=8 \
            -p 80:8080 linkplanner
 ```
 
-It is recommended to leave the `max_distance` at 150 kilometers and `h3_res` as 8 to keep computations fast.
+It is recommended to leave the `max_distance` at 150 kilometers and `h3_res` as 8 so that the computation is fast.
 
 ## References
 
