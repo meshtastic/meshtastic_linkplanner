@@ -49,5 +49,5 @@ Note: It is recommended to leave the `max_distance` at 100 kilometers and `h3_re
 
 * geoprop-py: https://github.com/JayKickliter/geoprop-py
 * leafletjs: https://leafletjs.com
-* itm / Longely Rice model: https://its.ntia.gov/software/itm
+* ITM / Longely Rice model: https://its.ntia.gov/software/itm
 * meshtastic: https://meshtastic.org
