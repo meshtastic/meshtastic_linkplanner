@@ -1,10 +1,25 @@
 # Meshtastic Link Planner 
 
-If you just want to use the link planner, go to the hosted version: 
+If you just want to use the link planner, go to the hosted version: insertlinkhere
 
 ## About
 
 This is a web utility to predict the range of a Meshtastic radio (see meshtastic.org). It generates a map of where your meshtastic radio can be received based on your location and antenna. The prediction accounts for terrain and calculates the expected RSSI (received signal strength indication) using the ITM / Longely-Rice model. The model parameters have been carefully chosen based on experimental data and practical experience to produce results which are accuate for meshtastic devices. Radio parameters are based on the selected LoRa region. 
+
+## Assumptions
+
+This tool makes several assumptions:
+
+* Devices receiving your radio are 1 meter above the ground and have an antenna gain of 1.0 dB.
+* There are no signal losses caused by obstructions other than terrain. This commonly includes trees, buildings, and glass windows.
+* Antennas are isotropic and vertically polarized.
+* There are negligable signal losses caused by antennas connected to radios through coaxial cable.
+* Radios are transmitting the maximum legal power permitted in their region.
+* The sensitivity of the receiver in all cases is approximately -130 dBm.
+* The terrain model is accurate to 30 meters.
+
+These assumptions have been tested and found to be practical approximations of how meshtastic radios work, however, edge cases are possible. Please use discretion when applying results from this tool and verify the results if your project depends on them.
+
 
 ## Building
 
@@ -28,8 +43,11 @@ docker run --env h3_res=8 \
            -p 80:8080 linkplanner
 ```
 
-It is recommended to leave the `max_distance` at 150 kilometers and `h3_res` as 8 so that the computation is fast.
+Note: It is recommended to leave the `max_distance` at 100 kilometers and `h3_res` as 8 so that the computation is fast.
 
 ## References
 
-
+* geoprop-py: https://github.com/JayKickliter/geoprop-py
+* leafletjs: https://leafletjs.com
+* itm / Longely Rice model: https://its.ntia.gov/software/itm
+* meshtastic: https://meshtastic.org
