@@ -1,5 +1,5 @@
-#Meshtastic Link Planner 
+# Meshtastic Link Planner 
 
-##About
+## About
 
 This app is a tool to predict the range of a Meshtastic radio (see meshtastic.org)
