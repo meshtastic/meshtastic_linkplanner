@@ -37,7 +37,7 @@ git clone https://github.com/mrpatrick1991/meshtastic_linkplanner/ && cd meshtas
 docker build -t linkplanner .
 
 docker run --env h3_res=8 \
-           --env max_distance_km=150 \
+           --env max_distance_km=100 \
            --env tile_dir=/app/srtm_tiles \
            -v my_srtm_data:/app/srtm_tiles \
            -p 80:8080 linkplanner
