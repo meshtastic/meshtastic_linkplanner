@@ -47,6 +47,10 @@ docker run --env h3_res=8 \
 
 Note: It is recommended to leave the `max_distance` at 100 kilometers and `h3_res` as 8 so that the computation is fast.
 
+## Disclaimer
+
+Follow local radio communication laws. Some meshtastic projects may require an amateur radio license. 
+
 ## References
 
 * geoprop-py: https://github.com/JayKickliter/geoprop-py
