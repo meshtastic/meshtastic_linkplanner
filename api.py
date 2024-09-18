@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from geoprop import Tiles, Itm, Point, Climate
@@ -15,15 +15,6 @@ logging.basicConfig(level=logging.INFO)
 
 config = dotenv_values(".env")
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, OPTIONS, etc.)
-    allow_headers=["*"],  # Allows all headers (x-api-key, Content-Type, etc.)
-)
-
 
 def load_config() -> dict:
     try:
@@ -110,3 +101,7 @@ async def predict(payload: PredictRequest) -> JSONResponse:
     feature_collection = geojson.FeatureCollection(features)
 
     return JSONResponse(content=feature_collection)
+
+@app.get("/")
+def serve_frontend():
+    return FileResponse("index.html")
