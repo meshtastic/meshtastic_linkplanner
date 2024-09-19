@@ -17,7 +17,6 @@ Requirements:
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from geoprop import Tiles, Itm, Point, Climate
 from regions import meshtastic_regions
@@ -32,14 +31,6 @@ import time
 
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 def load_config() -> dict:
     def get_env_var(var_name: str, convert_type=None, default=None):
