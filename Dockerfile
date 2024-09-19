@@ -21,7 +21,7 @@ RUN pip install --upgrade pip
 RUN pip install maturin
 
 # build geoprop-py using maturin
-WORKDIR /app/geoprop-py
+WORKDIR /app/geoprop
 RUN maturin build
 RUN pip install target/wheels/geoprop-*-manylinux*.whl
 
