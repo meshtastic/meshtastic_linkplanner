@@ -19,6 +19,7 @@ This tool makes several assumptions:
 * Radios are transmitting the maximum legal power permitted in their region.
 * The sensitivity of the receiver in all cases is approximately -130 dBm.
 * The terrain model is accurate to 30 meters.
+* In the hosted version, signals do not travel farther than 100 kilometers from the transmitter.
 
 These assumptions have been tested and found to be practical in typical usage scenarios. Please use discretion when applying results from this tool and verify the results if your project depends on them.
 
