@@ -43,7 +43,7 @@ docker run --env h3_res=8 \
            --env max_distance_km=100 \
            --env tile_dir=/app/srtm_tiles \
            -v my_srtm_data:/app/srtm_tiles \
-           -p 80:8080 linkplanner
+           -p 8080:8080 linkplanner
 ```
 
 Note: It is recommended to leave the `max_distance` at 100 kilometers and `h3_res` as 8 so that the computation is fast.
