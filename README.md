@@ -1,6 +1,6 @@
 # Meshtastic Link Planner 
 
-If you just want to use the link planner, go to the hosted version: (pending)
+If you just want to use the link planner, go to the hosted version: https://meshplanner.mpatrick.dev
 
 ## About
 
