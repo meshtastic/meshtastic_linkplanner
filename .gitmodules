@@ -1,0 +1,3 @@
+[submodule "geoprop"]
+	path = geoprop
+	url = https://github.com/mrpatrick1991/geoprop-py_fork/
