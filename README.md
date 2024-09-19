@@ -35,7 +35,7 @@ Requirements:
 copy the `.hgt` files to a convenient folder, `my_srtm_data`.
 
 ```
-git clone https://github.com/mrpatrick1991/meshtastic_linkplanner/ && cd meshtastic_linkplanner
+git clone --recurse-submodules https://github.com/mrpatrick1991/meshtastic_linkplanner/ && cd meshtastic_linkplanner
 
 docker build -t linkplanner .
 
