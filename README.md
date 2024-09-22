@@ -1,6 +1,6 @@
 # Meshtastic Link Planner 
 
-If you want to use the link planner, go to the hosted version: https://meshplanner.mpatrick.dev .
+If you want to use the link planner, go to the hosted version: https://meshplanner.mpatrick.dev.
 
 ## About
 
