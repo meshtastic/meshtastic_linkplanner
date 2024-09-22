@@ -111,19 +111,20 @@
         <p></p>
         <button onclick="predict()">Run Model</button>
 
-        <!-- About link -->
-        <a href="#" id="about-link" onclick="openAboutDialog()">About</a>
-    </div>
-
-    <!-- Color bar for RSSI -->
-    <div id="color-bar-container">
+        <hr>
         <p>Predicted Signal (dBm)</p>
         <div style="display: flex; justify-content: space-between;">
         <span id="min-rssi">-140 (weak)</span>
         <span id="max-rssi">-90 (strong)</span>
         </div>
         <div class="color-bar" id="color-bar"></div>
+        <br>
+
+        <!-- About link -->
+        <a href="#" id="about-link" onclick="openAboutDialog()">About</a>
     </div>
+
+
 
     <!-- About dialog -->
     <dialog id="about-dialog">
