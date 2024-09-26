@@ -13,7 +13,7 @@ This project is not affiliated with Meshtastic.
 This tool makes several assumptions:
 
 * Receivers are 1 meter above the ground and have an antenna gain of 1.0 dB.
-* There are no signal losses caused by obstructions other than terrain. This commonly includes trees, buildings, and glass windows.
+* There are no signal losses caused by obstructions other than terrain. This includes trees, buildings, and glass windows.
 * Antennas are isotropic and vertically polarized.
 * Negligible signal losses are caused by coaxial cable.
 * Radios are transmitting the maximum legal power permitted in their region.
