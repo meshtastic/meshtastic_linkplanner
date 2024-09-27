@@ -202,8 +202,8 @@
         L.control.layers(baseMaps, {}, { position: 'topleft' }).addTo(map);
 
         map.on('click', function (e) {
-            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
-            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+            document.getElementById('lat').value = e.latlng.wrap().lat.toFixed(6);
+            document.getElementById('lng').value = e.latlng.wrap().lng.toFixed(6);
 
             if (currentMarker) {
                 map.removeLayer(currentMarker);
