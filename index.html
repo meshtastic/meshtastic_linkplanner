@@ -89,7 +89,7 @@
 
     <div class="controls">
         <h3>Meshtastic Coverage Estimator</h3>
-        <p>ITM / Longely-Rice model for estimating the range of your meshtastic radio.</p>
+        <p>ITM / Longley-Rice model for estimating the range of your meshtastic radio.</p>
         <p>Click on the map to select a location, then click run model. The colored tiles are where your signal can be received.</p>
 
         <label for="height">Height (m):</label>
@@ -108,8 +108,24 @@
         <select id="region">
             <option value="US">US</option>
             <option value="EU_868">EU_868</option>
+            <option value="EU_433">EU_433</option>
+            <option value="ANZ">ANZ</option>
+            <option value="CN">CN</option>
+            <option value="IN">IN</option>
+            <option value="JP">JP</option>
+            <option value="KR">KR</option>
+            <option value="MY_919">MY_919</option>
+            <option value="MY_433">MY_433</option>
+            <option value="NZ_865">NZ_865</option>
+            <option value="RU">RU</option>
+            <option value="SG_923">SG_923</option>
+            <option value="TW">TW</option>
+            <option value="TH">TH</option>
+            <option value="UA_868">UA_868</option>
+            <option value="UA_433">UA_433</option>
         </select>
         <p></p>
+
         <button onclick="predict()">Run Model</button>
 
         <hr>
