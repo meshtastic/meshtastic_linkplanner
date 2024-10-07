@@ -6,8 +6,6 @@ If you want to use the link planner, go to the hosted version: https://meshplann
 
 This is a web utility to predict the range of a Meshtastic radio (see http://meshtastic.org). It generates a map of where your Meshtastic radio can be received based on your location and antenna. The prediction accounts for terrain and calculates the expected RSSI (received signal strength indication) using the ITM / Longley-Rice model. The model parameters have been carefully chosen based on experimental data and practical experience to produce results which are accurate for Meshtastic devices. The transmit power and frequency are based on the selected LoRa region. 
 
-This project is not affiliated with Meshtastic.
-
 ## Assumptions
 
 This tool makes several assumptions:
