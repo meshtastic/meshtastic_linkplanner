@@ -7,6 +7,7 @@
     <link rel="icon" href="data:,">
     <title>Meshtastic Coverage Estimator</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
     <style>
         html,
         body {
@@ -188,6 +189,7 @@
     <script src="https://unpkg.com/leaflet-providers@latest/leaflet-providers.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.8.2/dist/d3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3.0.0/dist/d3-scale-chromatic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 
     <script>
         var currentMarker = null;
@@ -227,10 +229,38 @@
         // Add the layer control to the map
         L.control.layers(baseMaps, {}, { position: 'topleft' }).addTo(map);
 
+        // add location control to the map
+        L.control
+            .locate({
+                strings: {
+                    title: "My Location",
+                },
+                locateOptions: {
+                    maxZoom: 10
+                }
+            })
+        .addTo(map);
+
         map.on('click', function (e) {
             document.getElementById('lat').value = e.latlng.wrap().lat.toFixed(6);
             document.getElementById('lng').value = e.latlng.wrap().lng.toFixed(6);
 
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            currentMarker = L.marker(e.latlng).addTo(map);
+        });
+
+        map.on('locationfound', function (e) {
+            const userLat = e.latitude;
+            const userLng = e.longitude;
+
+            // Set the latitude and longitude input values
+            document.getElementById('lat').value = userLat.toFixed(6);
+            document.getElementById('lng').value = userLng.toFixed(6);
+
+            // Update marker position
             if (currentMarker) {
                 map.removeLayer(currentMarker);
             }
