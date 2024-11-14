@@ -94,6 +94,10 @@ class PredictRequest(BaseModel):
     )
     resolution: int = Field(8, ge=7, le=12, description="simulation h3 cell resolution")
 
+    tx_power: Optional[float] = Field(30, gt=0, description="transmitter power in dBm")
+    additional_loss: Optional[float] = Field(0, gt=0, description="additional losses in dBm")
+    rx_sensitivity: Optional[float] = Field(-130, gt=0, description="receiver sensitivity in dBm")
+
 
 @app.post("/predict")
 async def predict(payload: PredictRequest) -> JSONResponse:
@@ -122,6 +126,9 @@ async def predict(payload: PredictRequest) -> JSONResponse:
         - rx_gain: float, gain of the receiver antenna in dB
         - region: str, Meshtastic region code (must be one of the valid region codes from regions.py)
         - resolution: int, H3 resolution (must be between 7 and 12)
+        - tx_power: optional, float: override for the transmit power given in the meshtastic region (dBm)
+        - additional_loss: optional, float: additional losses in dB, such as cable loss.
+        - rx_sensitivity: optional, float: override for the receiver sensitivity given in the meshtastic region (dBm)
 
     Returns:
     --------
@@ -165,13 +172,16 @@ async def predict(payload: PredictRequest) -> JSONResponse:
     start_time = time.time()
     try:
         center = Point(payload.lat, payload.lon, payload.txh)
+        rx_sensitivity = payload.rx_sensitivity if payload.rx_sensitivity is not None else meshtastic_regions[payload.region].get("rx_sensitivity", -130)
+        additional_loss = payload.additional_loss if payload.additional_loss is not None else 0
+
         prediction_h3 = itm.coverage(
             center,
             config["h3_res"],
             meshtastic_regions[payload.region]["frequency"] * 1e6,  # must be in MHz
             config["max_distance_km"],
             payload.rxh,
-            rx_threshold_db=None,
+            rx_threshold_db=rx_sensitivity,
         )
     except ValueError as e:
         logging.error(f"Model calculation error: {str(e)}")
@@ -182,15 +192,14 @@ async def predict(payload: PredictRequest) -> JSONResponse:
     duration = end_time - start_time
     logging.info(f"ITM model calculation completed successfully in {duration:.2f} seconds.")
 
-    tx_power = meshtastic_regions[payload.region][
-        "transmit_power"
-    ]  # assume the maximum permitted transmit power for the region
+
+    tx_power = payload.tx_power if payload.tx_power is not None else meshtastic_regions[payload.region]["transmit_power"]
 
     features = []
     for row in prediction_h3:
         hex_boundary = h3.h3_to_geo_boundary(hex(row[0]), geo_json=True)
 
-        loss_db = row[2]
+        loss_db = row[2] - additional_loss
         model_rssi = (
             tx_power + payload.tx_gain + payload.rx_gain - loss_db
         )  # simple approximation, ignores other losses such as cables
