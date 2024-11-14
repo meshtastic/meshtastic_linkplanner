@@ -27,7 +27,7 @@
 
     <div class="controls">
       <div class="controls-header" id="controls-header">
-        <img src="images/drag_handle.png" alt="Drag handle" class="drag-handle"/>
+        <img src="images/drag_handle.png" alt="Drag handle" class="drag-handle" />
       </div>
       <div class="controls-content" id="controls-content">
         <h3>Meshtastic Coverage Estimator</h3>
@@ -74,17 +74,23 @@
 
         <details advanced settings>
           <summary>Advanced Settings</summary>
+
+          <label>
+            <input type="checkbox" id="override-checkbox" />
+            Override region parameters
+          </label>
+
           <label for="tx_power">Transmitter power (dBm):</label>
-          <input type="text" id="tx_power" value="30" />
+          <input type="text" id="tx_power" value="30" disabled />
 
           <label for="frequency">Frequency (MHz):</label>
-          <input type="text" id="tx_frequency" value="905.0" />
+          <input type="text" id="frequency" value="905.0" disabled />
 
           <label for="rx_height">Receiver height above ground (m):</label>
           <input type="text" id="rx_height" value="1.0" />
 
           <label for="rx_gain">Receiver gain (dB):</label>
-          <input type="text" id="rx_height" value="1.0" />
+          <input type="text" id="rx_gain" value="1.0" />
 
           <label for="additional_loss">Additional loss (dB):</label>
           <input type="text" id="additional_loss" value="0.0" />
@@ -119,7 +125,6 @@
         purpose is to estimate the range of a Meshtastic radio, using a realistic physics and
         terrain model.
       </p>
-      It is not affiliated with the Meshtastic project.
 
       <p>
         Source code:

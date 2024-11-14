@@ -46,7 +46,11 @@ details[open] > summary {
 }
 
 #run-model-btn {
+  margin-bottom: 8;
   margin-top: 15px;
+}
+
+#override-checkbox {
   margin-bottom: 15px;
 }
 

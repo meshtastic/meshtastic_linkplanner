@@ -21,7 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from geoprop import Tiles, Itm, Point, Climate
 from regions import meshtastic_regions
-from typing import Literal
+from typing import Literal, Optional
 import logging
 import geojson
 import h3
@@ -36,12 +36,11 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://meshplanner.mpatrick.dev"],
+    allow_origins=["https://meshplanner.mpatrick.dev", "http://127.0.0.1:8080"],  # Add your local testing URL
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
 
 def load_config() -> dict:
     def get_env_var(var_name: str, convert_type=None, default=None):
@@ -94,9 +93,13 @@ class PredictRequest(BaseModel):
     )
     resolution: int = Field(8, ge=7, le=12, description="simulation h3 cell resolution")
 
+    frequency: Optional[float] = Field(
+        905, gt=20, le=20000, description="frequency in MHz"
+    )
     tx_power: Optional[float] = Field(30, gt=0, description="transmitter power in dBm")
-    additional_loss: Optional[float] = Field(0, gt=0, description="additional losses in dBm")
-    rx_sensitivity: Optional[float] = Field(-130, gt=0, description="receiver sensitivity in dBm")
+    additional_loss: Optional[float] = Field(
+        0, ge=0, description="additional losses in dBm"
+    )
 
 
 @app.post("/predict")
@@ -172,16 +175,21 @@ async def predict(payload: PredictRequest) -> JSONResponse:
     start_time = time.time()
     try:
         center = Point(payload.lat, payload.lon, payload.txh)
-        rx_sensitivity = payload.rx_sensitivity if payload.rx_sensitivity is not None else meshtastic_regions[payload.region].get("rx_sensitivity", -130)
-        additional_loss = payload.additional_loss if payload.additional_loss is not None else 0
-
+        additional_loss = (
+            payload.additional_loss if payload.additional_loss is not None else 0
+        )
+        frequency = (
+            payload.frequency
+            if payload.frequency is not None
+            else meshtastic_regions[payload.region]["frequency"] * 1e6
+        )
         prediction_h3 = itm.coverage(
             center,
             config["h3_res"],
-            meshtastic_regions[payload.region]["frequency"] * 1e6,  # must be in MHz
+            frequency * 1e6,
             config["max_distance_km"],
             payload.rxh,
-            rx_threshold_db=rx_sensitivity,
+            rx_threshold_db=2000,  # take a very large value for the max loss allowed in the model, then filter based on the UI sensitivity option
         )
     except ValueError as e:
         logging.error(f"Model calculation error: {str(e)}")
@@ -190,27 +198,28 @@ async def predict(payload: PredictRequest) -> JSONResponse:
         )
     end_time = time.time()
     duration = end_time - start_time
-    logging.info(f"ITM model calculation completed successfully in {duration:.2f} seconds.")
+    logging.info(
+        f"ITM model calculation completed successfully in {duration:.2f} seconds."
+    )
 
-
-    tx_power = payload.tx_power if payload.tx_power is not None else meshtastic_regions[payload.region]["transmit_power"]
+    tx_power = (
+        payload.tx_power
+        if payload.tx_power is not None
+        else meshtastic_regions[payload.region]["transmit_power"]
+    )
 
     features = []
     for row in prediction_h3:
         hex_boundary = h3.h3_to_geo_boundary(hex(row[0]), geo_json=True)
 
-        loss_db = row[2] - additional_loss
-        model_rssi = (
-            tx_power + payload.tx_gain + payload.rx_gain - loss_db
-        )  # simple approximation, ignores other losses such as cables
-
+        loss_db = row[2] + additional_loss
+        model_rssi = tx_power + payload.tx_gain + payload.rx_gain - loss_db
         features.append(
             geojson.Feature(
                 geometry=geojson.Polygon([hex_boundary]),
                 properties={"model_rssi": model_rssi},
             )
         )
-
     feature_collection = geojson.FeatureCollection(features)
 
     return JSONResponse(content=feature_collection)

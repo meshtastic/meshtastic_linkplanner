@@ -59,6 +59,12 @@ map.on("click", function (e) {
   currentMarker = L.marker(e.latlng).addTo(map);
 });
 
+document.getElementById("override-checkbox").addEventListener("change", function () {
+  const isEnabled = this.checked;
+  document.getElementById("tx_power").disabled = !isEnabled;
+  document.getElementById("frequency").disabled = !isEnabled;
+});
+
 map.on("locationfound", function (e) {
   const userLat = e.latitude;
   const userLng = e.longitude;
@@ -85,13 +91,8 @@ async function predict() {
   var txh = parseFloat(document.getElementById("height").value);
   var gain = parseFloat(document.getElementById("gain").value);
   var region = document.getElementById("region").value;
-
-  var tx_power = parseFloat(document.getElementById("tx_power").value);
-  var frequency = parseFloat(document.getElementById("frequency").value);
   var rx_height = parseFloat(document.getElementById("rx_height").value);
   var rx_gain = parseFloat(document.getElementById("rx_gain").value);
-  var loss = parseFloat(document.getElementById("additional_loss").value);
-  var sensitivity = parseFloat(document.getElementById("rx_sensitivity").value);
 
   var postData = {
     lat: lat,
@@ -104,8 +105,18 @@ async function predict() {
     resolution: 8,
   };
 
+  if (document.getElementById("override-checkbox").checked) {
+    postData.tx_power = parseFloat(document.getElementById("tx_power").value);
+    postData.frequency = parseFloat(document.getElementById("frequency").value);
+
+    postData.additional_loss = parseFloat(document.getElementById("additional_loss").value);
+    postData.rx_sensitivity = parseFloat(document.getElementById("rx_sensitivity").value);
+  }
+
+  console.log("Request data:", postData);
+
   try {
-    const response = await fetch("https://meshplanner.mpatrick.dev/predict", {
+    const response = await fetch("http://meshtastic.mpatrick.dev/predict", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -133,7 +144,7 @@ function plotH3Tiles(geojson) {
   }
 
   const h3LayerGroup = L.layerGroup();
-  const rssiThreshold = -130;
+  const rssiThreshold = parseFloat(document.getElementById("rx_sensitivity").value);
 
   geojson.features.forEach((feature) => {
     const modelRssi = feature.properties.model_rssi;
@@ -197,17 +208,17 @@ const container = document.querySelector(".controls");
 const header = document.querySelector(".controls-header");
 
 function onMouseDrag({ movementX, movementY }) {
-    let getContainerStyle = window.getComputedStyle(container);
-    let leftValue = parseInt(getContainerStyle.left);
-    let topValue = parseInt(getContainerStyle.top);
-    container.style.left = `${leftValue + movementX}px`;
-    container.style.top = `${topValue + movementY}px`;
+  let getContainerStyle = window.getComputedStyle(container);
+  let leftValue = parseInt(getContainerStyle.left);
+  let topValue = parseInt(getContainerStyle.top);
+  container.style.left = `${leftValue + movementX}px`;
+  container.style.top = `${topValue + movementY}px`;
 }
 
 header.addEventListener("mousedown", () => {
-    document.addEventListener("mousemove", onMouseDrag);
+  document.addEventListener("mousemove", onMouseDrag);
 });
 
 document.addEventListener("mouseup", () => {
-    document.removeEventListener("mousemove", onMouseDrag);
+  document.removeEventListener("mousemove", onMouseDrag);
 });
