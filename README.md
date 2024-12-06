@@ -24,6 +24,10 @@ These assumptions have been tested and found to be practical in typical usage sc
 
 ## Building
 
+**Warning: SRTM dataset download instructions out of date.**
+
+The below S3 bucket does not contain the tiles you need. An alternative solution is being developed currrently.
+
 Requirements:
 
 * 3 arcsecond resolution NASA SRTM elevation dataset in `.hgt` format, available from https://registry.opendata.aws/terrain-tiles/
