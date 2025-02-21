@@ -1,6 +1,7 @@
 # Meshtastic Link Planner 
 
-If you want to use the link planner, go to the hosted version: https://meshplanner.mpatrick.dev.
+> [!WARNING]
+> This repository has been superseded by the Meshtastic Siteplanner (see https://github.com/meshtastic/meshtastic-site-planner). You can visit the hosted version at https://site.meshtastic.org/
 
 ## About
 
